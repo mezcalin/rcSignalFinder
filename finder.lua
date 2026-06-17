@@ -1,5 +1,5 @@
 -- ExpressLRS Signal Finder Script
--- Save as SCRIPTS/TOOLS/find_elrs.lua
+-- Save as SCRIPTS/TOOLS/finder.lua
 
 local rssiId = nil
 local lastBeep = 0
@@ -10,60 +10,55 @@ local function init()
 end
 
 local function run(event)
-    lcd.clear()
-    lcd.drawText(10, 10, "ELRS Signal Finder", MIDSIZE)
-    lcd.drawText(10, 25, "Point antenna to find peak signal", DEFAULT)
-
+    -- If RSSI sensor is not found, attempt to re-detect itself
     if not rssiId then
-        -- Try to re-detect if not found initially
         rssiId = getFieldInfo("1RSS") or getFieldInfo("RSSI")
-        lcd.drawText(10, 45, "Searching for RSSI telemetry...", BLINK)
-        return 0
+        return
     end
 
     local rssiValue = getValue(rssiId.id)
 
     -- Handle cases where telemetry is lost or zero
     if rssiValue == nil or rssiValue == 0 then
-        lcd.drawText(10, 45, "Signal: NO TELEMETRY", DBALIGNED)
-        return 0
+        return
     end
 
-    -- Display the current dBm
-    lcd.drawText(10, 45, "Current RSSI: " .. rssiValue .. " dBm", MIDSIZE)
-
     -- ExpressLRS dBm typically ranges from -128 (worst) to 0 (best/perfect)
-    -- Map the dBm to a beep interval (higher dBm = shorter delay = faster beeping)
+    -- Define operational ExpressLRS boundaries for better user feedback
     local minDbm = -120
     local maxDbm = -50
 
-    -- Constrain rssiValue for calculation
+    -- Constrain current value inside boundaries to avoid mathematical overflow
     local cleanRssi = rssiValue
     if cleanRssi < minDbm then cleanRssi = minDbm end
     if cleanRssi > maxDbm then cleanRssi = maxDbm end
 
     -- Calculate delay: closer to 0 dBm means smaller delay (faster beeps)
+
+    -- Calculate linear coefficient from 0.0 (worst) to 1.0 (perfect)
     local percentage = (cleanRssi - minDbm) / (maxDbm - minDbm)
-    local beepDelay = 150 - (percentage * 130) -- Delays between 20ms and 150ms (in 10ms increments)
+
+
+    -- EXPONENTIAL RESOLUTION STRETCHING
+    -- Using 2^x scaling ensures that the difference between a good signal (-60dBm)
+    -- and a perfect signal (-50dBm) is dynamically stretched.
+    -- This provides maximum acoustic separation exactly where the signal is strongest.
+    local dynamicCurve = (math.exp(percentage * 3) - 1) / (math.exp(3) - 1)
+
+    -- Map percentage to EdgeTX internal ticks (1 tick = 10ms)
+    -- maxDelay: 20 ticks (200ms) | minDelay: 0.5 ticks (5ms)
+    local maxDelay = 20
+    local minDelay = 0.5
+    local beepDelay = maxDelay - (dynamicCurve * (maxDelay - minDelay))
 
     -- Beep timing logic
     local now = getTime() -- Returns time in 10ms increments
     if now - lastBeep > beepDelay then
-        playTone(1200, 60, 0, PLAY_NOW) -- Play a short, high-pitched beep
+        -- Play a short, high-pitched beep
+        -- playTone(frequency, duration, pause [, flags [, freqIncr [, volume]]])
+        playTone(2000, 20, 0, PLAY_NOW)
         lastBeep = now
     end
-
-    -- Visual signal bar
-    local barWidth = math.floor(percentage * 100)
-    lcd.drawRectangle(10, 60, 104, 10)
-    lcd.drawFilledRectangle(12, 62, barWidth, 6)
-
-    -- Exit the script cleanly if the EXIT button is pressed
-    if event == EVT_VIRTUAL_EXIT then
-        return 1
-    end
-
-    return 0
 end
 
 return { init=init, run=run }

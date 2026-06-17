@@ -1,12 +1,16 @@
 # ExpressLRS Signal Finder (Acoustic Radar) for EdgeTX
 
-A professional, high-performance Lua script designed for **EdgeTX / OpenTX** transmitters (such as the **RadioMaster Boxer, TX16S, and Zorro**) that turns your radio into an acoustic "Geiger-Counter" style tracker to locate lost RC models, drones, and fixed-wing aircraft using the **ExpressLRS (ELRS)** telemetry signal link.
+A professional, high-performance Lua script designed for **EdgeTX / OpenTX** transmitters (such as the **RadioMaster Boxer, TX16S, and Zorro**) that turns your radio into an acoustic "Geiger-Counter" style tracker to locate lost RC models, drones, and fixed-wing aircraft using either **ExpressLRS (ELRS)** or **FlySky** telemetry links.
+
+The project consists of two specialized scripts optimized for background execution via EdgeTX Special Functions:
+1. **`findelrs.lua`**: Main telemetry parser for ExpressLRS links (utilizes native dBm calculations).
+2. **`findflsk.lua`**: Main telemetry parser for FlySky protocols (utilizes native percentage/quality calculations).
 
 ---
 
 ## Overview
 
-When searching for a downed model, looking down at a screen can be dangerous and inefficient. This script translates the **RSSI dBm (1RSS)** telemetry data directly into a dynamic acoustic pulse.
+When searching for a downed model, looking down at a screen can be dangerous and inefficient. These scripts translate telemetry data directly into a dynamic acoustic pulse.
 
 ### Key Characteristics:
 * **Worst Signal ($-120$ dBm or lower):** Slow, rhythmic warning chirps spaced **$200$ ms** apart.
@@ -26,7 +30,7 @@ EdgeTX requires files located in the `FUNCTIONS` directory to have a filename le
 3. Access the mass storage directory of the transmitter.
 4. Navigate to the directory: **`[SD_CARD_ROOT]/SCRIPTS/FUNCTIONS/`**
    * *Note: If the `FUNCTIONS` folder does not exist inside your `SCRIPTS` folder, create it manually.*
-5. Copy your local `finder.lua` file directly into this folder.
+5. Copy the required script file (`findelrs.lua` or `findflsk.lua`) directly into this folder.
 6. Safely unmount/eject the SD card storage from your computer and unplug the USB cable. Press **Exit** on the Boxer to boot into standard system firmware.
 
 ---
@@ -40,7 +44,7 @@ To gain instantaneous, field-ready access to your signal locator, map it to a ph
 3. Scroll down to the first available empty line (e.g., `SF1`) and hit **Enter**.
 4. **Switch Selection:** Highlight the first block, hit **Enter**, then flip the physical switch you want to designate (e.g., a momentary switch like `SH↓`, or a structural toggle switch like `SF↓`).
 5. **Action Assignment:** Scroll to the next column (**Action**), click, and cycle through the options until you find **Lua Script**. Select it.
-6. **Script Definition:** Scroll to the next column (**Value/Script name**), click, and pick **`finder`** from the populated system menu.
+6. **Script Definition:** Scroll to the next column (**Value/Script name**), click, and pick your script (**`findelrs`** or **`findflsk`**) from the populated system menu.
 7. **Activation Check:** Scroll to the final column on the right (**Enable**) and click it to ensure the checkbox contains a **checkmark** (Activated).
 
 ---

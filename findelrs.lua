@@ -1,5 +1,5 @@
 -- ExpressLRS Signal Finder Script
--- Save as SCRIPTS/FUNCTIONS/finder.lua
+-- Save as SCRIPTS/FUNCTIONS/findelrs.lua
 
 local rssiId = nil
 local lastBeep = 0

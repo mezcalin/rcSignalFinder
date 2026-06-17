@@ -1,4 +1,4 @@
-# ExpressLRS Signal Finder (Acoustic Radar) for EdgeTX
+# RC Signal Finder (Acoustic Radar) for EdgeTX
 
 A professional, high-performance Lua script designed for **EdgeTX / OpenTX** transmitters (such as the **RadioMaster Boxer, TX16S, and Zorro**) that turns your radio into an acoustic "Geiger-Counter" style tracker to locate lost RC models, drones, and fixed-wing aircraft using either **ExpressLRS (ELRS)** or **FlySky** telemetry links.
 

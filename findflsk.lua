@@ -1,5 +1,5 @@
--- ExpressLRS Signal Finder Script
--- Save as SCRIPTS/FUNCTIONS/findelrs.lua
+-- FlySky Signal Finder Script
+-- Save as SCRIPTS/FUNCTIONS/findflsk.lua
 
 local rssiId = nil
 local lastBeep = 0
@@ -23,9 +23,10 @@ local function run(event)
         return
     end
 
-    -- threshold values for signal strength in percentage (0-100%)
-    local minSignal = 10
-    local maxSignal = 95
+    -- ADJUSTED FOR FLYSKY 250 SCALE:
+    -- Typical FlySky telemetry scaling under Multi-Protocol/EdgeTX maxes out near 250.
+    local minSignal = 30
+    local maxSignal = 245
 
     -- Constrain current value inside boundaries to avoid mathematical overflow
     local cleanRssi = rssiValue

@@ -5,7 +5,7 @@ local rssiId = nil
 local lastBeep = 0
 
 local function init()
-    -- Find the RSSI dBm telemetry sensor ID (typically '1RSS' or 'RSSI' in ELRS)
+    -- Find the RSSI dBm telemetry sensor ID (typically 'TRSS' or 'RSSI' in ELRS)
     rssiId = getFieldInfo("RSSI") or getFieldInfo("TRSS") or getFieldInfo("RQly")
 end
 

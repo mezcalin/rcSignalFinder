@@ -33,8 +33,6 @@ local function run(event)
     if cleanRssi < minDbm then cleanRssi = minDbm end
     if cleanRssi > maxDbm then cleanRssi = maxDbm end
 
-    -- Calculate delay: closer to 0 dBm means smaller delay (faster beeps)
-
     -- Calculate linear coefficient from 0.0 (worst) to 1.0 (perfect)
     local percentage = (cleanRssi - minDbm) / (maxDbm - minDbm)
 
@@ -45,18 +43,30 @@ local function run(event)
     -- This provides maximum acoustic separation exactly where the signal is strongest.
     local dynamicCurve = (math.exp(percentage * 3) - 1) / (math.exp(3) - 1)
 
+    -- 1. DYNAMIC SPEED (Delay between beeps changes based on proximity)
+    -- Calculate delay: closer to 0 dBm means smaller delay (faster beeps)
     -- Map percentage to EdgeTX internal ticks (1 tick = 10ms)
     -- maxDelay: 20 ticks (200ms) | minDelay: 0.5 ticks (5ms)
     local maxDelay = 20
     local minDelay = 0.5
     local beepDelay = maxDelay - (dynamicCurve * (maxDelay - minDelay))
 
+    -- 2. DYNAMIC PITCH (Frequency changes based on proximity)
+    -- Far away: 800 Hz (low tone) | Extremely close: 3000 Hz (high alarm)
+    local minFreq = 800
+    local maxFreq = 3000
+    local toneFrequency = minFreq + (dynamicCurve * (maxFreq - minFreq))
+
+    -- 3. DYNAMIC DURATION (Tone shortens based on proximity)
+    -- Shrinks from 35ms to 10ms
+    local toneDuration = 35 - (dynamicCurve * 25)
+
     -- Beep timing logic
     local now = getTime() -- Returns time in 10ms increments
     if now - lastBeep > beepDelay then
         -- Play a short, high-pitched beep
         -- playTone(frequency, duration, pause [, flags [, freqIncr [, volume]]])
-        playTone(2000, 20, 0, PLAY_NOW)
+        playTone(toneFrequency, toneDuration, 0, PLAY_NOW)
         lastBeep = now
     end
 end

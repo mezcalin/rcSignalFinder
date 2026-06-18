@@ -13,8 +13,8 @@ The project consists of two specialized scripts optimized for background executi
 When searching for a downed model, looking down at a screen can be dangerous and inefficient. These scripts translate telemetry data directly into a dynamic acoustic pulse.
 
 ### Key Characteristics:
-* **Worst Signal ($-120$ dBm or lower):** Slow, rhythmic warning chirps spaced **$200$ ms** apart.
-* **Best Signal ($-50$ dBm or higher):** Ultra-high-frequency acoustic buzz with an intensive **$5$ ms** interval.
+* **Worst Signal ($-120$ dBm or lower):** Slow, rhythmic warning chirps spaced **$200$ ms** apart. low tone (800 Hz)
+* **Best Signal ($-50$ dBm or higher):** Ultra-high-frequency acoustic buzz with an intensive **$5$ ms** interval. high tone (3000 Hz)
 * **Dynamic Signal Scaling:** Using 2^x scaling ensures that the difference between a good signal (-60dBm) and a perfect signal (-50dBm) is dynamically stretched. This provides maximum acoustic separation exactly where the signal is strongest.
 * **Optimized Execution Loop:** Engineered for background execution via EdgeTX **Special Functions**, bypassing standard LCD rendering loops to ensure stutter-free audio parsing and zero control latency.
 * **EdgeTX Compliant:** Named perfectly within the strict **6-character limitation** required by EdgeTX to ensure visibility under the function assignment system.

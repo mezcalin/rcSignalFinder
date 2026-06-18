@@ -13,14 +13,14 @@ local function run(event)
     -- If RSSI sensor is not found, attempt to re-detect itself
     if not rssiId then
         rssiId = getFieldInfo("1RSS") or getFieldInfo("RSSI")
-        return
+        return 0
     end
 
     local rssiValue = getValue(rssiId.id)
 
     -- Handle cases where telemetry is lost or zero
     if rssiValue == nil or rssiValue == 0 then
-        return
+        return 0
     end
 
     -- ExpressLRS dBm typically ranges from -128 (worst) to 0 (best/perfect)
@@ -35,7 +35,6 @@ local function run(event)
 
     -- Calculate linear coefficient from 0.0 (worst) to 1.0 (perfect)
     local percentage = (cleanRssi - minDbm) / (maxDbm - minDbm)
-
 
     -- EXPONENTIAL RESOLUTION STRETCHING
     -- Using 2^x scaling ensures that the difference between a good signal (-60dBm)
@@ -57,18 +56,20 @@ local function run(event)
     local maxFreq = 3000
     local toneFrequency = minFreq + (dynamicCurve * (maxFreq - minFreq))
 
-    -- 3. DYNAMIC DURATION (Tone shortens based on proximity)
-    -- Shrinks from 35ms to 10ms
-    local toneDuration = 35 - (dynamicCurve * 25)
-
     -- Beep timing logic
     local now = getTime() -- Returns time in 10ms increments
     if now - lastBeep > beepDelay then
         -- Play a short, high-pitched beep
         -- playTone(frequency, duration, pause [, flags [, freqIncr [, volume]]])
-        playTone(toneFrequency, toneDuration, 0, PLAY_NOW)
+        playTone(toneFrequency, 60, 0, PLAY_NOW)
         lastBeep = now
     end
+
+    if event == EVT_VIRTUAL_EXIT then
+        return 1
+    end
+
+    return 0
 end
 
 return { init=init, run=run }
